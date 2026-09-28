@@ -3,89 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>root@pacman-core:~#</title>
+    <title>root@pacman-arcade:~#</title>
     <!-- Importing Retro Developer Fonts -->
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
     <link href="https://googleapis.com/css2?family=Fira+Code:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
-        /* Matrix / Cyberpunk Hacker Terminal Variables */
         :root {
             --matrix-green: #00FF33;
-            --dim-green: #008811;
+            --dim-green: #004400;
             --pacman-yellow: #FFD700;
             --terminal-dark: #050505;
-            --scanline-color: rgba(0, 255, 51, 0.04);
+            --scanline-color: rgba(0, 255, 51, 0.03);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            cursor: dashed;
         }
 
         body {
             font-family: 'Fira Code', monospace;
             background-color: var(--terminal-dark);
             color: var(--matrix-green);
-            padding: 20px;
+            padding: 10px;
             overflow-x: hidden;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
 
-        /* Ambient scanline and overlay for realistic terminal screen */
+        /* Scanline CRT glass tube simulation filter */
         body::before {
             content: " ";
             display: block;
             position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(var(--scanline-color) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background: linear-gradient(var(--scanline-color) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
             z-index: 9999;
-            background-size: 100% 3px, 6px 100%;
+            background-size: 100% 4px, 6px 100%;
             pointer-events: none;
         }
 
-        /* Matrix Background Animation Canvas */
-        #matrix-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.15;
-        }
-
-        /* Terminal Console Frame */
         .terminal-container {
-            max-width: 1000px;
-            margin: 20px auto;
+            width: 100%;
+            max-width: 700px;
             background-color: rgba(5, 5, 5, 0.95);
             border: 2px solid var(--matrix-green);
-            border-radius: 6px;
-            box-shadow: 0 0 30px rgba(0, 255, 51, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 0 35px rgba(0, 255, 51, 0.25);
+            padding: 15px;
         }
 
-        /* Terminal Top Control Bar */
         .terminal-header {
             background-color: #111;
             border-bottom: 2px solid var(--matrix-green);
-            padding: 10px 15px;
+            padding: 8px 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 15px;
         }
 
         .window-buttons {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             border: 1px solid var(--matrix-green);
         }
@@ -94,201 +85,182 @@
         .dot.green { background-color: #50fa7b; }
 
         .terminal-title {
-            color: var(--matrix-green);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             letter-spacing: 1px;
         }
 
-        /* Main Workspace Console Content */
-        .console-body {
-            padding: 25px;
-        }
-
-        /* Neon Flashing Retro Title */
         h1 {
             font-family: 'Press Start 2P', cursive;
             color: var(--pacman-yellow);
-            font-size: 1.8rem;
-            margin-bottom: 25px;
-            text-shadow: 0 0 10px var(--pacman-yellow);
-            animation: glitch 2s infinite;
-        }
-
-        /* Glitch Animation Effect */
-        @keyframes glitch {
-            0% { text-shadow: 2px 2px var(--dim-green); }
-            50% { text-shadow: -2px -2px #ff0000; }
-            100% { text-shadow: 2px 2px var(--dim-green); }
-        }
-
-        /* Code logs & commands layout */
-        .system-logs {
-            font-size: 0.95rem;
-            margin-bottom: 25px;
-            line-height: 1.5;
-            color: #88ff88;
-        }
-
-        .cmd-line {
-            color: var(--matrix-green);
-            margin-bottom: 5px;
-        }
-
-        .cmd-line::before {
-            content: "guest@pacman-bypass:~$ ";
-            color: var(--pacman-yellow);
-            font-weight: bold;
-        }
-
-        /* Content Display Box */
-        .database-module {
-            background: rgba(0, 255, 51, 0.05);
-            border-left: 4px solid var(--matrix-green);
-            padding: 20px;
-            margin: 25px 0;
-        }
-
-        .database-module p {
+            font-size: 1.2rem;
+            text-align: center;
             margin-bottom: 15px;
-            text-align: justify;
-            letter-spacing: 0.5px;
+            text-shadow: 0 0 8px var(--pacman-yellow);
         }
 
-        /* Hacker Buttons */
-        .hacker-btn {
-            font-family: 'Fira Code', monospace;
-            background-color: transparent;
-            color: var(--matrix-green);
-            border: 2px solid var(--matrix-green);
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(0, 255, 51, 0.1);
-        }
-
-        .hacker-btn:hover {
-            background-color: var(--matrix-green);
-            color: var(--terminal-dark);
-            box-shadow: 0 0 20px var(--matrix-green);
-        }
-
-        /* Live Input Blinking Prompt Line */
-        .input-line {
+        .score-board {
             display: flex;
+            justify-content: space-between;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.75rem;
+            margin-bottom: 15px;
+            padding: 5px 10px;
+            background: rgba(0, 255, 51, 0.05);
+            border: 1px solid var(--dim-green);
+        }
+
+        /* Canvas Game Frame Layout Grid */
+        #game-container {
+            display: flex;
+            justify-content: center;
             align-items: center;
-            margin-top: 25px;
+            margin-bottom: 15px;
         }
 
-        .prompt-label {
-            color: var(--pacman-yellow);
-            font-weight: bold;
-            margin-right: 10px;
+        canvas {
+            border: 4px solid var(--matrix-green);
+            background-color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 51, 0.1);
         }
 
-        .blink {
-            animation: blinker 1s linear infinite;
+        .controls-hint {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #88ff88;
+            margin-top: 10px;
+            border-top: 1px dashed var(--dim-green);
+            padding-top: 10px;
         }
 
-        @keyframes blinker {
-            50% { opacity: 0; }
+        .btn-restart {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            font-family: 'Press Start 2P', cursive;
+            background: transparent;
+            color: var(--matrix-green);
+            border: 1px solid var(--matrix-green);
+            padding: 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-restart:hover {
+            background: var(--matrix-green);
+            color: var(--terminal-dark);
+            box-shadow: 0 0 15px var(--matrix-green);
         }
     </style>
 </head>
 <body>
 
-    <!-- Matrix rain falling code canvas effect -->
-    <canvas id="matrix-canvas"></canvas>
-
     <div class="terminal-container">
-        <!-- Window Chrome Head -->
         <div class="terminal-header">
             <div class="window-buttons">
                 <div class="dot red"></div>
                 <div class="dot yellow"></div>
                 <div class="dot green"></div>
             </div>
-            <div class="terminal-title">PACMAN_CORE_DATABASE_DECRYPTOR.sh</div>
+            <div class="terminal-title">CYBER_PACMAN_INTRUSION.exe</div>
             <div></div>
         </div>
 
-        <div class="console-body">
-            <!-- Glitch Heading -->
-            <h1>> PAC-MAN WORLD BYPASS</h1>
+        <h1>> INTRUDER MAN</h1>
 
-            <!-- Hacker Command Shell Simulator Grid -->
-            <div class="system-logs">
-                <div class="cmd-line">chmod +x decrypt_pacman_data.sh</div>
-                <div class="cmd-line">./decrypt_pacman_data.sh</div>
-                <div>[STATUS] Connecting to NAMCO Mainframe... CONNECTED</div>
-                <div>[STATUS] Injecting Power Pellet exploit code... SUCCESS</div>
-                <div>[STATUS] Bypassing Ghost Security Matrix (Blinky, Pinky, Inky, Clyde)... BYPASSED</div>
-                <div>[STATUS] Extracting Database Records... DONE</div>
-            </div>
+        <div class="score-board">
+            <span>SCORE: <span id="score-val">0000</span></span>
+            <span style="color: #ff5555;">STATUS: <span id="status-val">ACTIVE</span></span>
+        </div>
 
-            <!-- Main Extracted Pac-Man Web Content Module -->
-            <div class="database-module">
-                <p><strong>[DECRYPTED RECORD #01]</strong> Pac-Man is a world-famous arcade game loved by players of all ages. In this game, you control a cheerful yellow character who navigates through a maze, chomping down dots while avoiding four colorful, mischievous ghosts.</p>
-                <p><strong>[DECRYPTED RECORD #02]</strong> This website introduces everything you need to know about the game, including its rich history, the unique personalities of each ghost, and secret tricks to get a high score. Whether you are a beginner or a fan, you will find fun facts that make the game even more exciting.</p>
-                <p><strong>[DECRYPTED RECORD #03]</strong> Let's dive into the pixelated world of Pac-Man together, learn the best strategies, and aim for a brand-new high score!</p>
-            </div>
+        <div id="game-container">
+            <canvas id="arcadeCanvas" width="400" height="400"></canvas>
+        </div>
 
-            <!-- Custom Interactive Button Interface -->
-            <div style="margin-top: 30px;">
-                <button class="hacker-btn" onclick="triggerHackAlert()">Execute Override</button>
-            </div>
+        <button class="btn-restart" onclick="resetGame()">RESET SYSTEM INTRUSION</button>
 
-            <!-- Terminal Interactive Cursor Node -->
-            <div class="input-line">
-                <span class="prompt-label">root@pacman-core:#</span>
-                <span id="typed-text">system_status --active</span><span class="blink">_</span>
-            </div>
+        <div class="controls-hint">
+            [SYS_CONTROL]: USE KEYBOARD ARROW KEYS TO BYPASS SECURITY GRID
         </div>
     </div>
 
     <script>
-        // Matrix Falling Rain Code script layer 
-        const canvas = document.getElementById('matrix-canvas');
+        const canvas = document.getElementById('arcadeCanvas');
         const ctx = canvas.getContext('2d');
+        const scoreVal = document.getElementById('score-val');
+        const statusVal = document.getElementById('status-val');
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        const tileSize = 20;
+        const rowCount = 20;
+        const colCount = 20;
 
-        const katakana = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890PACMAN';
-        const alphabet = katakana.split('');
+        let score = 0;
+        let gameOver = false;
 
-        const fontSize = 16;
-        let columns = canvas.width / fontSize;
+        // Basic clean system maze array structure (1 = Wall node, 0 = Dot node)
+        const map = [,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+ ,
+            [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
 
-        const rainDrops = [];
-        for (let x = 0; x < columns; x++) {
-            rainDrops[x] = 1;
-        }
-
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(5, 5, 5, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#0F0'; 
-            ctx.font = fontSize + 'px monospace';
-
-            for (let i = 0; i < rainDrops.length; i++) {
-                const text = alphabet[Math.floor(Math.random() * alphabet.length)];
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-
-                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    rainDrops[i] = 0;
+        // Track and runtime clones of active items
+        let dots = [];
+        function initDots() {
+            dots = [];
+            for(let r=0; r<rowCount; r++) {
+                for(let c=0; c<colCount; c++) {
+                    if(map[r][c] === 0) {
+                        dots.push({r: r, c: c, active: true});
+                    }
                 }
-                rainDrops[i]++;
             }
         }
 
-        setInterval(drawMatrix, 30);
+        // Entities state definition blocks
+        let pacman = { x: 1, y: 1, dirX: 0, dirY: 0, nextDirX: 0, nextDirY: 0, speed: 0.1 };
+        
+        let ghosts = [
+            { x: 9, y: 9, color: '#ff5555', dirX: 1, dirY: 0 },
+            { x: 10, y: 9, color: '#ffb86c', dirX: -1, dirY: 0 }
+        ];
 
-        // Terminal Trigger Action Function
+        // Direction handler listeners
+        window.addEventListener('keydown', e => {
+            if(e.key === 'ArrowUp')    { pacman.nextDirX = 0;  pacman.nextDirY = -1; }
+            if(e.key === 'ArrowDown')  { pacman.nextDirX = 0;  pacman.nextDirY = 1;  }
+            if(e.key === 'ArrowLeft')  { pacman.nextDirX = -1; pacman.nextDirY = 0;  }
+            if(e.key === 'ArrowRight') { pacman.nextDirX = 1;  pacman.nextDirY = 0;  }
+        });
+
+        function isWall(x, y) {
+            let r = Math.floor(y);
+            let c = Math.floor(x);
+            if(r < 0 || r >= rowCount || c < 0 || c >= colCount) return false;
+            return map[r][c] === 1;
+        }
+
+        function updateEntity(entity, isPacman) {
+            // Apply direction choices at grid alignment intersections
+            if (Math.abs(entity.x - Math.round(entity.x))  !isWall(entity.x + d.x, entity.y + d.y) && !(d.x === -entity.dirX && d.y === -entity.dirY));
+                    if(validDirs.length === 0) validDirs = dirs.filter(d => !isWall(entity.x + d.x, entity.y + d.y));
+                    if(validDirs.length > 0) {
+                        let pick = validDirs[Math.floor(Math.random() * validDirs.length)];
+                        entity.dirX = pick.x;
+                        entity.dirY = pick.y;
